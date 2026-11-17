@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Салтанат: event-система для Beeline Business</title>
+<style>
+  :root{
+    --y:#FFD43B; --y-soft:#FFF6D1; --ink:#141414; --mut:#5c5c5c; --line:#e7e3d6; --bg:#FBFAF6; --ok:#1f8a4c;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+  .wrap{max-width:980px;margin:0 auto;padding:0 20px}
+  .note{font-size:12px;color:var(--mut);text-align:center;padding:10px 20px;border-bottom:1px solid var(--line)}
+  header{padding:56px 0 40px}
+  .tag{display:inline-block;background:var(--y);font-weight:600;font-size:13px;padding:4px 10px;border-radius:99px;margin-bottom:18px}
+  h1{font-size:clamp(30px,5.5vw,52px);line-height:1.08;letter-spacing:-.02em;max-width:820px}
+  h1 span{background:linear-gradient(transparent 60%,var(--y) 60%)}
+  .lead{font-size:18px;color:var(--mut);max-width:640px;margin-top:18px}
+  .cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
+  .btn{display:inline-block;padding:12px 18px;border-radius:12px;font-weight:600;text-decoration:none;font-size:15px;border:none;cursor:pointer}
+  .btn.p{background:var(--ink);color:#fff}
+  .btn.s{background:#fff;color:var(--ink);border:1px solid var(--line)}
+  section{padding:44px 0;border-top:1px solid var(--line)}
+  h2{font-size:clamp(22px,3.4vw,30px);letter-spacing:-.01em;margin-bottom:8px}
+  .sub{color:var(--mut);margin-bottom:26px;max-width:640px}
+  .pains{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px}
+  .card b{display:block;margin-bottom:6px}
+  .card p{color:var(--mut);font-size:15px}
+  .flow{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;counter-reset:s}
+  .step{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;position:relative}
+  .step::before{counter-increment:s;content:counter(s);display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--y);font-weight:700;font-size:14px;margin-bottom:10px}
+  .step b{display:block;font-size:15px;margin-bottom:6px}
+  .step p{font-size:13px;color:var(--mut)}
+  @media(max-width:820px){.flow{grid-template-columns:1fr 1fr}}
+  @media(max-width:480px){.flow{grid-template-columns:1fr}}
+  .demo{display:grid;grid-template-columns:1.1fr 1fr;gap:16px}
+  @media(max-width:820px){.demo{grid-template-columns:1fr}}
+  .event{background:var(--ink);color:#fff;border-radius:20px;padding:24px}
+  .event .date{display:inline-block;background:var(--y);color:var(--ink);font-weight:700;font-size:12px;padding:4px 10px;border-radius:99px}
+  .event h3{font-size:24px;margin:14px 0 6px;line-height:1.2}
+  .event .meta{color:#bdbdbd;font-size:14px;margin-bottom:18px}
+  form{display:grid;gap:10px}
+  input,select{width:100%;padding:11px 12px;border-radius:10px;border:1px solid #333;background:#1f1f1f;color:#fff;font-size:15px}
+  input::placeholder{color:#888}
+  .event .btn{background:var(--y);color:var(--ink);width:100%}
+  .crm{background:#fff;border:1px solid var(--line);border-radius:20px;padding:20px;font-size:14px}
+  .crm h4{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin-bottom:12px}
+  .empty{color:var(--mut);padding:30px 0;text-align:center}
+  .row{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px dashed var(--line)}
+  .row span:first-child{color:var(--mut)}
+  .row span:last-child{font-weight:600;text-align:right}
+  .pill{display:inline-block;background:var(--y-soft);border:1px solid var(--y);padding:2px 8px;border-radius:99px;font-size:12px}
+  .tl{margin-top:14px}
+  .tl div{display:flex;gap:10px;align-items:flex-start;padding:6px 0;font-size:13px}
+  .tl i{font-style:normal;font-weight:700;min-width:44px}
+  .funnel{display:grid;gap:8px}
+  .bar{display:flex;align-items:center;gap:12px}
+  .bar .lbl{width:150px;font-size:14px;color:var(--mut)}
+  .bar .fill{height:34px;background:var(--y);border-radius:8px;display:flex;align-items:center;padding-left:10px;font-weight:700;font-size:14px}
+  .bar .pct{font-size:13px;color:var(--mut)}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:20px}
+  .kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px}
+  .kpi b{font-size:22px;display:block}
+  .kpi span{font-size:13px;color:var(--mut)}
+  .small{font-size:12px;color:var(--mut);margin-top:10px}
+  .plan{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+  .plan .card h3{font-size:14px;color:var(--mut);font-weight:600;margin-bottom:6px}
+  .plan ul{padding-left:18px;color:var(--ink);font-size:15px}
+  .plan li{margin:4px 0}
+  .me{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  @media(max-width:720px){.me{grid-template-columns:1fr}}
+  .me ul{list-style:none}
+  .me li{padding:10px 0;border-bottom:1px solid var(--line);font-size:15px}
+  .me li b{display:block}
+  .me li span{color:var(--mut);font-size:14px}
+  footer{padding:30px 0 50px;color:var(--mut);font-size:13px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+
+<div class="note">Это прототип, который я сделала для отклика на стажировку Disruptors. Не официальная страница Beeline, ивент и цифры вымышленные.</div>
+
+<div class="wrap">
+  <header>
+    <span class="tag">Отклик: стажёр по event-экосистеме Beeline Business</span>
+    <h1>Как бы я выстроила <span>event-систему</span> Beeline Business</h1>
+    <p class="lead">Привет, я Салтанат. Организовала ивенты на 11 000+ гостей, а в Beeline Case Championship была и в команде организаторов, и в финале. Вместо рассказа о себе сделала прототип: как один ивент проходит путь от карточки до сделки, и всё это видно в CRM.</p>
+    <div class="cta">
+      <a class="btn p" href="#demo">Попробовать прототип</a>
+      <a class="btn s" href="#me">Обо мне</a>
+    </div>
+  </header>
+
+  <section>
+    <h2>Что я вижу в задаче</h2>
+    <p class="sub">По описанию вакансии вижу три разрыва, которые и должна закрыть единая система.</p>
+    <div class="pains">
+      <div class="card"><b>Ивенты живут отдельно</b><p>Офлайн, онлайн и гибрид ведутся по-разному, нет единого календаря и карточки события.</p></div>
+      <div class="card"><b>Регистрация ≠ лид</b><p>Участник зарегистрировался, но его компания и контакт не попадают в CRM автоматически.</p></div>
+      <div class="card"><b>Непонятен эффект</b><p>Сложно ответить, сколько сделок принёс конкретный ивент и окупился ли бюджет.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Путь одного ивента</h2>
+    <p class="sub">Пять шагов, каждый оставляет данные в CRM.</p>
+    <div class="flow">
+      <div class="step"><b>Карточка ивента</b><p>Цель, аудитория, формат, бюджет, ответственный. Появляется в едином календаре.</p></div>
+      <div class="step"><b>Регистрация</b><p>Типовой лендинг и форма. Данные сразу уходят в CRM.</p></div>
+      <div class="step"><b>Лид в CRM</b><p>Связка: компания → контакт → лид с источником «ивент».</p></div>
+      <div class="step"><b>Коммуникации</b><p>Подтверждение, напоминания, follow-up после ивента по сценарию.</p></div>
+      <div class="step"><b>Метрики</b><p>Воронка от регистрации до сделки, стоимость лида, ROI ивента.</p></div>
+    </div>
+  </section>
+
+  <section id="demo">
+    <h2>Прототип: зарегистрируйся и посмотри, что видит CRM</h2>
+    <p class="sub">Заполни форму. Данные никуда не отправляются, всё работает только в браузере.</p>
+    <div class="demo">
+      <div class="event">
+        <span class="date">12 ДЕКАБРЯ · АСТАНА + ОНЛАЙН</span>
+        <h3>AI для бизнеса: как автоматизировать продажи в 2027</h3>
+        <p class="meta">Гибридный бизнес-завтрак для руководителей B2B-компаний</p>
+        <form id="reg">
+          <input id="name" placeholder="Имя и фамилия" required>
+          <input id="company" placeholder="Компания" required>
+          <input id="role" placeholder="Должность" required>
+          <select id="size">
+            <option>до 50 сотрудников</option>
+            <option>50–250 сотрудников</option>
+            <option>250+ сотрудников</option>
+          </select>
+          <select id="format">
+            <option>Приду офлайн</option>
+            <option>Буду онлайн</option>
+          </select>
+          <button class="btn" type="submit">Зарегистрироваться</button>
+        </form>
+      </div>
+      <div class="crm" id="crm">
+        <h4>Карточка в CRM</h4>
+        <div class="empty">Здесь появится лид после регистрации</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Как бы выглядел отчёт по ивенту</h2>
+    <p class="sub">Пример воронки на условных цифрах, чтобы показать логику метрик.</p>
+    <div class="funnel">
+      <div class="bar"><span class="lbl">Регистрации</span><div class="fill" style="width:60%">200</div></div>
+      <div class="bar"><span class="lbl">Пришли</span><div class="fill" style="width:42%">140</div><span class="pct">140 / 200 = 70%</span></div>
+      <div class="bar"><span class="lbl">Квалиф. лиды</span><div class="fill" style="width:18%">42</div><span class="pct">42 / 140 = 30%</span></div>
+      <div class="bar"><span class="lbl">Сделки</span><div class="fill" style="width:8%">8</div><span class="pct">8 / 42 ≈ 19%</span></div>
+    </div>
+    <div class="kpis">
+      <div class="kpi"><b>3 000 000 ₸</b><span>условный бюджет ивента</span></div>
+      <div class="kpi"><b>≈ 71 400 ₸</b><span>стоимость лида: 3 000 000 / 42</span></div>
+      <div class="kpi"><b>375 000 ₸</b><span>стоимость сделки: 3 000 000 / 8</span></div>
+    </div>
+    <p class="small">Цифры условные. В реальной системе они считались бы автоматически из CRM и шли в дашборд.</p>
+  </section>
+
+  <section>
+    <h2>С чего бы я начала</h2>
+    <div class="plan">
+      <div class="card"><h3>Недели 1–2</h3><ul><li>Разобраться, как сейчас проходят ивенты</li><li>Поговорить с командами, собрать боли</li><li>Описать текущий процесс</li></ul></div>
+      <div class="card"><h3>Недели 3–6</h3><ul><li>Собрать требования к модулю в CRM</li><li>Шаблон карточки и типового лендинга</li><li>Тестировать функционал с разработчиками</li></ul></div>
+      <div class="card"><h3>Дальше</h3><ul><li>Пилот на одном ивенте</li><li>Требования к дашборду</li><li>Инструкции и сбор обратной связи</li></ul></div>
+    </div>
+  </section>
+
+  <section id="me">
+    <h2>Обо мне</h2>
+    <div class="me">
+      <div>
+        <p class="sub" style="margin-bottom:14px">Салтанат Есенбек. Магистрантка Engineering Management в Nazarbayev University, бакалавр экономики. Люблю задачи на стыке бизнеса, данных и продукта.</p>
+        <div class="kpis" style="margin:0 0 18px">
+          <div class="kpi"><b>7 600+</b><span>гостей на 6 концертах NU</span></div>
+          <div class="kpi"><b>3 600+</b><span>гостей на 3 лекциях Business Club</span></div>
+          <div class="kpi"><b>Финал</b><span>продуктового кейс-чемпионата Beeline</span></div>
+        </div>
+        <div class="cta">
+          <a class="btn p" href="https://www.linkedin.com/in/saltanat-yessenbek-23b240291/" target="_blank">LinkedIn</a>
+          <a class="btn s" href="https://canva.link/5qhtas7ya1eewff" target="_blank">Портфолио ивентов</a>
+          <a class="btn s" href="mailto:saltanat.yessenbek@nu.edu.kz">Почта</a>
+        </div>
+      </div>
+      <ul>
+        <li><b>Ивенты от приглашения до рассадки</b><span>Хор и оркестр NU: 6 концертов, вела программу, приглашения, регистрацию гостей и работу на площадке</span></li>
+        <li><b>Онлайн-регистрация на 1 200+ человек</b><span>NU Business Club: 3 гостевые лекции, приглашения и регистрация внутренних и внешних гостей</span></li>
+        <li><b>Beeline Case Championship</b><span>Финалистка, а до этого в NU Case Club готовила баннеры, призы и мерч для 40 команд</span></li>
+        <li><b>EY-Parthenon</b><span>3 клиентских проекта: стратегии и рекомендации для стейкхолдеров</span></li>
+        <li><b>Кейс-чемпионаты</b><span>Visa: 1 место · PwC: 2 место · KPMG: 3 место · Mastercard: топ-6</span></li>
+        <li><b>Хакатон Zimran</b><span>С командой собрали веб-продукт Aura за 24 часа</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>Сделано Салтанат для отклика на программу Disruptors · 2026</footer>
+</div>
+
+<script>
+  const f=document.getElementById('reg'), crm=document.getElementById('crm');
+  const esc=s=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  f.addEventListener('submit',e=>{
+    e.preventDefault();
+    const v=id=>esc(document.getElementById(id).value.trim());
+    const size=document.getElementById('size').value;
+    const score=size.startsWith('250')?'Горячий':size.startsWith('50')?'Тёплый':'Новый';
+    const id='EV-'+Math.floor(1000+Math.random()*9000);
+    crm.innerHTML=`<h4>Карточка в CRM · ${id}</h4>
+      <div class="row"><span>Компания</span><span>${v('company')}</span></div>
+      <div class="row"><span>Контакт</span><span>${v('name')}, ${v('role')}</span></div>
+      <div class="row"><span>Размер компании</span><span>${esc(size)}</span></div>
+      <div class="row"><span>Источник</span><span>Ивент «AI для бизнеса»</span></div>
+      <div class="row"><span>Формат</span><span>${esc(document.getElementById('format').value)}</span></div>
+      <div class="row"><span>Статус лида</span><span><span class="pill">${score}</span></span></div>
+      <div class="tl"><b>Запланированные коммуникации</b>
+        <div><i>Сейчас</i>Письмо с подтверждением и ссылкой в календарь</div>
+        <div><i>T−7</i>Программа и спикеры</div>
+        <div><i>T−1</i>Напоминание + адрес или ссылка на трансляцию</div>
+        <div><i>T+1</i>Запись, материалы и опрос</div>
+        <div><i>T+3</i>Задача менеджеру: связаться с лидом</div>
+      </div>`;
+    f.reset();
+    if(window.innerWidth<820) crm.scrollIntoView({behavior:'smooth'});
+  });
+</script>
+</body>
+</html>
